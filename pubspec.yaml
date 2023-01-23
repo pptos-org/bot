@@ -1,11 +1,13 @@
 name: bot
 description: The PPTOS Archive Bot.
-version: 1.0.0
+version: 0.1.0
 # homepage: https://www.example.com
 
 environment:
   sdk: '>=2.18.0 <3.0.0'
 
 dependencies: 
+  dotenv: ^4.0.1
   nyxx: ^4.4.0
+  process_run: ^0.12.5+2
 
