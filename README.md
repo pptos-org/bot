@@ -4,7 +4,9 @@
 
 - get [mediafire-dl](https://github.com/Juvenal-Yescas/mediafire-dl) and [Internet Archive CLI](https://archive.org/developers/internetarchive/installation.html#binaries).
 
-- make an .env file in the root of the bot directory and write TOKEN=<YOURTOKEN> in it.
+- make an .env file in the root of the bot directory and write TOKEN=YOURTOKEN in it.
+
+- Get all of the dart dependencies (you only need to run this once): `dart pub get`
 
 - Now you can run the bot via `dart bin/main.dart`
 
