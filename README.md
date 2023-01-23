@@ -12,7 +12,7 @@
 ##### **license template made by brutal-org**
 
 <a href="https://opensource.org/licenses/MIT">
-  <img align="right" height="96" alt="MIT License" src="assets/license/mit-license.png" />
+  <img align="right" height="96" alt="MIT License" src="https://user-images.githubusercontent.com/58103738/214117133-1491b255-9ae9-4fc2-8134-714e23b813f3.png" />
 </a>
 
 The bot is licensed under the **MIT License**.
