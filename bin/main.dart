@@ -8,7 +8,7 @@ var env = DotEnv(includePlatformEnvironment: true)..load(); // load .env file
 // Main function
 void main() {
   // Check if token is provided
-  if (env['TOKEN'] == null || env.isDefined('TOKEN')) {
+  if (env['TOKEN'] == null || !env.isDefined('TOKEN')) {
     print(
         'Please provide a token in the .env file in ${Directory.current.path}');
     exit(1);
