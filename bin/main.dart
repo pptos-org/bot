@@ -26,6 +26,16 @@ void main() {
     } // Project PowerPoint server
   ];
 
+  List<String> doNotArchive = [
+    'svg',
+    'png',
+    'jpg',
+    'jpeg',
+    'gif',
+    'mp4',
+    'mp3'
+  ];
+
   final bot = NyxxFactory.createNyxxWebsocket(
       env['TOKEN']!,
       GatewayIntents.allUnprivileged |
@@ -114,6 +124,7 @@ void main() {
             .replaceAll(RegExp(r'[^a-zA-Z0-9]'), '')
             .split('.')[0];
       }
+
       if (url != null) {
         // name can contain spaces and special characters
         name = url
@@ -150,19 +161,25 @@ void main() {
                 .toList()[0]
                 .split('To: ')[1];
 
-            identifier = path
-                .split('/')
-                .last
-                .split('.')[0]
-                .replaceAll(RegExp(r'[^a-zA-Z0-9]'), '');
+            // if the the last 4 characters of the file name are not in the list of file types to not archive
+            if (!doNotArchive.contains(path.split('.').last)) {
+              identifier = path
+                  .split('/')
+                  .last
+                  .split('.')[0]
+                  .replaceAll(RegExp(r'[^a-zA-Z0-9]'), '');
 
-            name =
-                path.split('/').last.replaceAll('-', ' ').replaceAll('_', ' ');
+              name = path
+                  .split('/')
+                  .last
+                  .replaceAll('-', ' ')
+                  .replaceAll('_', ' ');
 
-            await archiveFile(path, identifier, name, date.toString(), user);
+              await archiveFile(path, identifier, name, date.toString(), user);
 
-            await replyToMessage(e,
-                '🎉 Your file has been archived! https://archive.org/details/PPTOS-$identifier');
+              await replyToMessage(e,
+                  '🎉 Your file has been archived! https://archive.org/details/PPTOS-$identifier');
+            }
           });
         }
 
@@ -170,11 +187,13 @@ void main() {
           Process.run('wget', [url]).then((ProcessResult results) async {
             var path = '${Directory.current.path}/${url.split('/').last}';
 
-            await archiveFile(path, identifier, name, date.toString(), user);
+            if (!doNotArchive.contains(path.split('.').last)) {
+              await archiveFile(path, identifier, name, date.toString(), user);
 
-            // reply to the message with the url
-            await replyToMessage(e,
-                '🎉 Your file has been archived! https://archive.org/details/PPTOS-$identifier');
+              // reply to the message with the url
+              await replyToMessage(e,
+                  '🎉 Your file has been archived! https://archive.org/details/PPTOS-$identifier');
+            }
           });
         }
       }

@@ -10,4 +10,3 @@ dependencies:
   dotenv: ^4.0.1
   nyxx: ^4.4.0
   process_run: ^0.12.5+2
-
