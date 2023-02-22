@@ -2,6 +2,8 @@ import "package:nyxx/nyxx.dart";
 import "dart:io";
 import 'package:process_run/shell.dart';
 import 'package:dotenv/dotenv.dart';
+import 'package:bot/ia.dart';
+import 'package:bot/message.dart';
 
 var env = DotEnv(includePlatformEnvironment: true)..load(); // load .env file
 
@@ -26,16 +28,6 @@ void main() {
     } // Project PowerPoint server
   ];
 
-  List<String> doNotArchive = [
-    'svg',
-    'png',
-    'jpg',
-    'jpeg',
-    'gif',
-    'mp4',
-    'mp3'
-  ];
-
   final bot = NyxxFactory.createNyxxWebsocket(
       env['TOKEN']!,
       GatewayIntents.allUnprivileged |
@@ -52,14 +44,14 @@ void main() {
 
   // listen only to messages from the specified channel in the specified server in the list above
 
-  bot.eventsWs.onReady.listen((e) {
+  bot.eventsWs.onReady.listen((IReadyEvent e) {
     print("Ready!");
   });
 
   Directory.current = '${Directory.current.path}/downloads';
 
   // Listen to all incoming messages
-  bot.eventsWs.onMessageReceived.listen((e) {
+  bot.eventsWs.onMessageReceived.listen((IMessageReceivedEvent e) async {
     var url, date, user, type, identifier, name;
     bool canRead = false;
 
@@ -116,13 +108,6 @@ void main() {
             .toList()[0];
 
         user = e.message.author.username;
-
-        // identifier can't contain any special characters or spaces
-        identifier = url
-            .split('/')
-            .last
-            .replaceAll(RegExp(r'[^a-zA-Z0-9]'), '')
-            .split('.')[0];
       }
 
       if (url != null) {
@@ -162,11 +147,13 @@ void main() {
                 .split('To: ')[1];
 
             // if the the last 4 characters of the file name are not in the list of file types to not archive
-            if (!doNotArchive.contains(path.split('.').last)) {
-              identifier = path
-                  .split('/')
-                  .last
-                  .split('.')[0]
+            if (isFile.image(path.split('/').last) ||
+                isFile.video(path.split('/').last)) {
+              var filename = path.split('/').last;
+
+              identifier = filename
+                  .replaceAll('.', '-')
+                  .substring(0, filename.lastIndexOf('.'))
                   .replaceAll(RegExp(r'[^a-zA-Z0-9]'), '');
 
               name = path
@@ -177,8 +164,9 @@ void main() {
 
               await archiveFile(path, identifier, name, date.toString(), user);
 
-              await replyToMessage(e,
-                  '🎉 Your file has been archived! https://archive.org/details/PPTOS-$identifier');
+              sleep5Minutes();
+
+              replyWith.archivedEmbed(e, "PPTOS-$identifier");
             }
           });
         }
@@ -187,14 +175,33 @@ void main() {
           Process.run('wget', [url]).then((ProcessResult results) async {
             var path = '${Directory.current.path}/${url.split('/').last}';
 
-            if (!doNotArchive.contains(path.split('.').last)) {
+            if (isFile.image(path.split('/').last) ||
+                isFile.video(path.split('/').last)) {
               await archiveFile(path, identifier, name, date.toString(), user);
 
-              // reply to the message with the url
-              await replyToMessage(e,
-                  '🎉 Your file has been archived! https://archive.org/details/PPTOS-$identifier');
+              sleep5Minutes();
+
+              replyWith.archivedEmbed(e, "PPTOS-$identifier");
             }
           });
+        }
+
+        if (type == 'gdrive') {
+          name = await gdown.getName(url);
+          identifier = name;
+
+          await gdown.download(url, name);
+
+          var path = '${Directory.current.path}/downloads/gdown-$name';
+
+          await archiveFile(path, identifier, name, date.toString(), user);
+
+          await Directory('${Directory.current.path}/downloads/gdown-$name')
+              .delete(recursive: true);
+
+          sleep5Minutes();
+
+          replyWith.archivedEmbed(e, "PPTOS-$identifier");
         }
       }
     }
@@ -216,18 +223,4 @@ Future<void> archiveFile(String path, String identifier, String name,
     print(results.stdout);
     print(results.stderr);
   });
-}
-
-Future<void> replyToMessage(IMessageReceivedEvent e, String content) async {
-  // reply to the message with the url
-  final replyBuilder = ReplyBuilder.fromMessage(e.message);
-  final messageBuilder = MessageBuilder.content(content)
-    ..replyBuilder = replyBuilder;
-
-  // If you dont want to mention user that invoked that command, use AllowedMentions
-  final allowedMentionsBuilder = AllowedMentions()..allow(reply: false);
-
-  messageBuilder.allowedMentions = allowedMentionsBuilder;
-
-  await e.message.channel.sendMessage(messageBuilder);
 }
