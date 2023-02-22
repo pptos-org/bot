@@ -190,9 +190,7 @@ void main() {
           name = await gdown.getName(url);
           identifier = name;
 
-          await gdown.download(url, name);
-
-          var path = '${Directory.current.path}/downloads/gdown-$name';
+          var path = await gdown.download(url, name);
 
           await archiveFile(path, identifier, name, date.toString(), user);
 

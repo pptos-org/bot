@@ -2,7 +2,7 @@
 
 - First install dart. You can read [here](https://dart.dev/get-dart) how to do so. The bot only works on linux!
 
-- get [mediafire-dl](https://github.com/Juvenal-Yescas/mediafire-dl) and [Internet Archive CLI](https://archive.org/developers/internetarchive/installation.html#binaries). Also make sure you have [zip](https://sourceforge.net/projects/infozip/) installed.
+- get [mediafire-dl](https://github.com/Juvenal-Yescas/mediafire-dl), [gdown](https://github.com/wkentaro/gdown) and [Internet Archive CLI](https://archive.org/developers/internetarchive/installation.html#binaries). Also make sure you have [zip](https://sourceforge.net/projects/infozip/) installed.
 
 - make an .env file in the root of the bot directory and write TOKEN=YOURTOKEN in it.
 

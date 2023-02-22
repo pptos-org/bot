@@ -20,12 +20,13 @@ class gdown {
     return name;
   }
 
-  static Future<void> download(String url, String name) async {
+  static Future<String> download(String url, String name) async {
     await Directory('${Directory.current.path}/downloads/gdown-$name').create();
 
     var shell = Shell();
     bool isFolder = false;
     String options = "-O ${Directory.current.path}/downloads/gdown-$name";
+    String path = "";
 
     if (url.contains("folders")) {
       options += " --folder";
@@ -37,7 +38,12 @@ class gdown {
     if (isFolder) {
       await shell.run(
           '''zip -r gdown-$name.zip ${Directory.current.path}/downloads/gdown-$name/*''');
+      path = '${Directory.current.path}/downloads/gdown-$name.zip';
+    } else {
+      path = '${Directory.current.path}/downloads/gdown-$name/$name';
     }
+
+    return path;
   }
 }
 
